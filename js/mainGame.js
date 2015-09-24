@@ -6,10 +6,11 @@ var PhaserGame = function (game){
     this.layer = null;
     this.char = null;
     
-    this.speed = 75;
+    this.speed = 50;
     
-        this.safetile = 1;
-        this.gridsize = 35;
+    this.safetile = 55;
+    this.gridsize = 35;
+    this.lastmove = null;
 
         this.threshold = 3;
         this.turnSpeed = 50;
@@ -34,48 +35,78 @@ PhaserGame.prototype = {
         this.load.tilemap('map', 'assets/maps/firstMap.json', null, Phaser.Tilemap.TILED_JSON);
         this.load.image('tiles', 'assets/images/tibiateset.png');
         this.load.image('char', 'assets/images/charSquare.png');
+        this.load.image('button', 'assets/images/button.png');
     },
 
     create: function(){
         this.map = this.add.tilemap('map');
         this.map.addTilesetImage('tibiateset', 'tiles');
         
-        this.layer = this.map.createLayer('wallsbin');
-        
+        this.layer = this.map.createLayer('Way');
         
         //Kan sätta första parametern till en array med siffror för att ha flera ID
         //EXEMPEL: var wallIDs = ["x", "x", "x"];
-        this.map.setCollision(32, true, this.layer);
+       // this.map.setCollision(32, true, this.layer);
+        //Löser det problemet med denna, som kolliderar med allf
+        this.map.setCollisionByExclusion([this.safetile], true, this.layer);
         
-        this.char = this.add.sprite(122.5, 17, 'char');
+        this.button1 = this.add.sprite(87.5, 87.5, 'button');
+        this.button1.anchor.set(0.5);
+        this.char = this.add.sprite(122.5, 17.5, 'char');
         this.char.anchor.set(0.5);
 
         this.physics.arcade.enable(this.char);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.physics.arcade.collide(this.char, this.layer);
-        
-        this.move(Phaser.DOWN);
     },
 
     checkKeys: function(){
         if (this.cursors.left.isDown){
             this.char.body.velocity.x = -100;
+            this.lastmove = "left";        
         }
         else if(this.cursors.right.isDown){
             this.char.body.velocity.x = 100;
+            this.lastmove = "right";
         }
         else if(this.cursors.up.isDown){
             this.char.body.velocity.y = -100;
+            this.lastmove = "up"
         }
         else if(this.cursors.down.isDown){
             this.char.body.velocity.y = 100;
+            this.lastmove = "down";
         }
         else {
-            //this.turning = Phaser.NONE;
-            this.char.body.velocity.x = 0;
-            this.char.body.velocity.y = 0;
+            if(this.lastmove == "down"){
+                //console.log(Math.floor((this.char.position.y)/35))
+                //console.log(Math.ceil((this.char.position.y)/35))
+                if(Math.ceil((this.char.position.y)/35) == Math.round((this.char.position.y)/35)){
+                    this.char.body.velocity.y = 0;
+                    this.char.position.y = 17.5+35*(Math.floor((this.char.position.y)/35))
+                }
             }
+            else if(this.lastmove == "up"){
+                if(Math.floor((this.char.position.y)/35) == Math.round((this.char.position.y)/35)){
+                    this.char.body.velocity.y = 0;
+                    this.char.position.y = 17.5+35*(Math.floor((this.char.position.y)/35))
+                }
+            }
+            if(this.lastmove == "right"){
+                if(Math.ceil((this.char.position.x)/35) == Math.round((this.char.position.x)/35)){
+                    this.char.body.velocity.x = 0;
+                    this.char.position.x = 17.5+35*(Math.floor((this.char.position.x)/35))
+                }
+            }
+            else if(this.lastmove == "left"){
+                if(Math.floor((this.char.position.x)/35) == Math.round((this.char.position.x)/35)){
+                    this.char.body.velocity.x = 0;
+                    this.char.position.x = 17.5+35*(Math.floor((this.char.position.x)/35))
+                }
+            }
+
+        }
 
     },
 
@@ -170,10 +201,28 @@ PhaserGame.prototype = {
             return "90";
 
         },
+    
+        pressbutton: function(char, button1){
+            console.log("pressed!")
+    },
+    
+    checkOverlap: function(sprite1, sprite2){
+        var boundsA = sprite1.getBounds();
+        var boundsB = sprite2.getBounds();
+        
+        return Phaser.Rectangle.intersects(boundsA, boundsB);
+    },
 
-        update: function () {
+    update: function() {
           
             this.physics.arcade.collide(this.char, this.layer);
+        
+            if(Phaser.Rectangle.intersects(this.char.getBounds(), this.button1.getBounds())){
+                console.log("Yes")  
+            }
+            else {
+               console.log("No")
+            }
 
             this.marker.x = this.math.snapToFloor(Math.floor(this.char.x), this.gridsize) / this.gridsize;
             this.marker.y = this.math.snapToFloor(Math.floor(this.char.y), this.gridsize) / this.gridsize;
@@ -191,9 +240,9 @@ PhaserGame.prototype = {
                 this.turn();
             }
 
-        },
+    },
 
 
-    };
+};
 
-    game.state.add('Game', PhaserGame, true);
+game.state.add('Game', PhaserGame, true);
