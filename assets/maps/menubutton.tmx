@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="7" height="2" tilewidth="30" tileheight="30" nextobjectid="1">
+ <tileset firstgid="1" name="sourceimage" tilewidth="30" tileheight="30" tilecount="165">
+  <image source="../images/sourceimage.png" width="450" height="330"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="7" height="2">
+  <data>
+   <tile gid="109"/>
+   <tile gid="117"/>
+   <tile gid="118"/>
+   <tile gid="117"/>
+   <tile gid="118"/>
+   <tile gid="119"/>
+   <tile gid="111"/>
+   <tile gid="54"/>
+   <tile gid="50"/>
+   <tile gid="55"/>
+   <tile gid="56"/>
+   <tile gid="51"/>
+   <tile gid="51"/>
+   <tile gid="52"/>
+  </data>
+ </layer>
+</map>

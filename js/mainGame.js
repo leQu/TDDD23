@@ -4,6 +4,7 @@ var PhaserGame = function (game){
     
     this.map = null;
     this.layer = null;
+    this.overlayer = null;
     this.char = null;
     
     this.speed = 50;
@@ -35,13 +36,16 @@ PhaserGame.prototype = {
         this.load.tilemap('map', 'assets/maps/firstMap.json', null, Phaser.Tilemap.TILED_JSON);
         this.load.image('tiles', 'assets/images/tibiateset.png');
         this.load.image('char', 'assets/images/charSquare.png');
-        this.load.image('button', 'assets/images/button.png');
+        this.load.image('falsewallButton', 'assets/images/falsewallButtonbutton.png');
+        this.load.image('falsewall', 'assets/images/falsewall.png');
+        this.load.image('hole', 'assets/images/hole.png');
     },
 
     create: function(){
         this.map = this.add.tilemap('map');
         this.map.addTilesetImage('tibiateset', 'tiles');
         
+        this.overlayer = this.map.createLayer('wallsbin');
         this.layer = this.map.createLayer('Way');
         
         //Kan sätta första parametern till en array med siffror för att ha flera ID
@@ -50,15 +54,25 @@ PhaserGame.prototype = {
         //Löser det problemet med denna, som kolliderar med allf
         this.map.setCollisionByExclusion([this.safetile], true, this.layer);
         
-        this.button1 = this.add.sprite(87.5, 87.5, 'button');
-        this.button1.anchor.set(0.5);
+        this.falsewallButton = this.add.sprite(87.5, 87.5, 'falsewallButton');
+        this.hole = this.add.sprite(87.5, 227.5,'hole')
+        this.hole.anchor.set(0.5);
+        this.falsewallButton.anchor.set(0.5);
         this.char = this.add.sprite(122.5, 17.5, 'char');
         this.char.anchor.set(0.5);
+        this.falsewall = this.add.sprite(227.5, 87.5, 'falsewall');
+        this.falsewall.anchor.set(0.5);
+        
+        this.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this.fireButton.onDown.add(testFloor, this)
 
-        this.physics.arcade.enable(this.char);
+        this.physics.arcade.enable([this.char, this.falsewall]);
 
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.physics.arcade.collide(this.char, this.layer);
+        
+       // this.physics.arcade.collide(this.char, this.falsewall);
+        this.falsewall.body.immovable = true;
+       // this.physics.arcade.collide(this.char, this.layer);
     },
 
     checkKeys: function(){
@@ -93,7 +107,7 @@ PhaserGame.prototype = {
                     this.char.position.y = 17.5+35*(Math.floor((this.char.position.y)/35))
                 }
             }
-            if(this.lastmove == "right"){
+            else if(this.lastmove == "right"){
                 if(Math.ceil((this.char.position.x)/35) == Math.round((this.char.position.x)/35)){
                     this.char.body.velocity.x = 0;
                     this.char.position.x = 17.5+35*(Math.floor((this.char.position.x)/35))
@@ -202,47 +216,64 @@ PhaserGame.prototype = {
 
         },
     
-        pressbutton: function(char, button1){
-            console.log("pressed!")
-    },
-    
-    checkOverlap: function(sprite1, sprite2){
-        var boundsA = sprite1.getBounds();
-        var boundsB = sprite2.getBounds();
-        
-        return Phaser.Rectangle.intersects(boundsA, boundsB);
-    },
-
     update: function() {
-          
-            this.physics.arcade.collide(this.char, this.layer);
         
-            if(Phaser.Rectangle.intersects(this.char.getBounds(), this.button1.getBounds())){
-                console.log("Yes")  
-            }
-            else {
-               console.log("No")
-            }
+        this.physics.arcade.collide(this.char, this.falsewall);
+        this.physics.arcade.collide(this.char, this.layer);
 
-            this.marker.x = this.math.snapToFloor(Math.floor(this.char.x), this.gridsize) / this.gridsize;
-            this.marker.y = this.math.snapToFloor(Math.floor(this.char.y), this.gridsize) / this.gridsize;
+       // this.marker.x = this.math.snapToFloor(Math.floor(this.char.x), this.gridsize) / this.gridsize;
+        //this.marker.y = this.math.snapToFloor(Math.floor(this.char.y), this.gridsize) / this.gridsize;
 
-            //  Update our grid sensors
-            this.directions[1] = this.map.getTileLeft(this.layer.index, this.marker.x, this.marker.y);
-            this.directions[2] = this.map.getTileRight(this.layer.index, this.marker.x, this.marker.y);
-            this.directions[3] = this.map.getTileAbove(this.layer.index, this.marker.x, this.marker.y);
-            this.directions[4] = this.map.getTileBelow(this.layer.index, this.marker.x, this.marker.y);
-
-            this.checkKeys();
-
-            if (this.turning !== Phaser.NONE)
-            {
-                this.turn();
-            }
+        //  Update our grid sensors
+        //this.directions[1] = this.map.getTileLeft(this.layer.index, this.marker.x, this.marker.y);
+        //this.directions[2] = this.map.getTileRight(this.layer.index, this.marker.x, this.marker.y);
+        //this.directions[3] = this.map.getTileAbove(this.layer.index, this.marker.x, this.marker.y);
+        //this.directions[4] = this.map.getTileBelow(this.layer.index, this.marker.x, this.marker.y);
+        
+        this.checkKeys();
+        
+        if (this.turning !== Phaser.NONE) {
+            this.turn();
+        }
+        if(Phaser.Rectangle.intersects(this.char.getBounds(), this.hole.getBounds())){
+            this.overlayer.bringToTop();
+            this.char.bringToTop();
+        }
+        else {
+         this.overlayer.sendToBack();   
+        }
 
     },
-
-
 };
+
+function testFloor(){
+    if(Phaser.Rectangle.intersects(this.char.getBounds(), this.falsewallButton.getBounds())){
+        console.log("Falsewall BUTTON")
+        if(this.falsewall.alive){
+            this.char.reset(87.5, 87.5);
+            this.falsewall.kill();
+            console.log("Wall is removed");
+        }
+        else{
+            this.falsewall.body.x = 122.5;
+            this.falsewall.reset(227.5, 87.5);  
+            console.log("Wall is added");
+        }
+        
+    }
+    
+    else if(1==2){
+        console.log("Roped");
+        //if standing on sqare change layout and change safetiles and thus change which tiles can be walked on. 
+        
+        
+    }
+    else if(1==2){
+        //Another action floor.   
+    }
+    else {
+        console.log("No")
+    }
+}
 
 game.state.add('Game', PhaserGame, true);
