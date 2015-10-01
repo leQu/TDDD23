@@ -232,7 +232,7 @@
    <tile gid="4"/>
   </data>
  </layer>
- <layer name="seclayer" width="15" height="15" visible="0">
+ <layer name="seclayer" width="15" height="15">
   <data>
    <tile gid="0"/>
    <tile gid="0"/>

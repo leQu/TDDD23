@@ -39,6 +39,7 @@ var Menu = {
     },
     
     startLvls: function(){
+        game.state.start('chooseLvl')
         console.log("start lvls!");   
     },
     
