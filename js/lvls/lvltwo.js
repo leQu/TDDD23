@@ -72,7 +72,7 @@ var lvlTwo = {
     },
     
     finishButton: function(){
-        game.state.start('lvlThree');
+        game.state.start('prelvlThree');
     },
     
     checkKeys: function(){

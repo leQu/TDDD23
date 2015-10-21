@@ -15,7 +15,7 @@ var loadingScreen = {
         
     },
     update: function(){
-        if(this.counter == 4){
+        if(this.counter == 10){
             game.state.start('Menu');   
         }
     }

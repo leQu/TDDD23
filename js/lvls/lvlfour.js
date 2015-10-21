@@ -141,7 +141,7 @@ var lvlFour = {
         
         this.checkKeys();
         
-        if(this.char.getBounds().x>310){
+        if(this.char.getBounds().x>310 && this.char.getBounds().y<270){
             this.stone.kill();
             
         }

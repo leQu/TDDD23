@@ -1,7 +1,6 @@
 var Menu = {
 
     preload: function() {
-        //load in the sprite for the "menu" aswell as possible sprite buttons that I'll use.
         game.load.image('menu', 'assets/images/Screens/menuScreen.png');
         
         game.load.spritesheet('lvl', 'assets/images/Screens/menulvlButton.png');

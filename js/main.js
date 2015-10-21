@@ -10,6 +10,8 @@ game.state.add('lvlTwo', lvlTwo);
 game.state.add('lvlThree',lvlThree);
 game.state.add('lvlFour', lvlFour);
 game.state.add('chooseLvl', chooseLvl);
+game.state.add('prelvlThree', prelvlThree);
+game.state.add('testingNew', testingNew);
 
 game.state.start('loadingScreen');
 

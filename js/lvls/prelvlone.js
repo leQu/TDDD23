@@ -12,6 +12,8 @@ var prelvlOne = {
         this.safetile = 66;
         this.gridsize = 30;
         this.lastmove = null;
+        this.marker = new Phaser.Point();
+        this.directions = [null, null, null, null, null];
         
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -58,6 +60,9 @@ var prelvlOne = {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
         
+        this.marker.x = this.math.snapToFloor(Math.floor(this.char.x), this.gridsize) / this.gridsize;
+        this.marker.y = this.math.snapToFloor(Math.floor(this.char.y), this.gridsize) / this.gridsize;
+        
     },
     
     finishButton: function(){
@@ -72,78 +77,99 @@ var prelvlOne = {
         
         //Add criteria that make sure you can't turn if the square is not walkable. Get id or something of the tile to the X and then try to turn.
         
-        if (this.cursors.left.isDown){
+        if (this.cursors.left.isDown && this.directions[1].index == this.safetile){
             this.char.animations.play('moveLeft', 15, true);
             this.char.body.velocity.y = 0; //Needed to make him fucking stop sliding!
             this.char.body.velocity.x = -100;
+            this.marker.x = this.math.snapToFloor(Math.ceil(this.char.x), this.gridsize) / this.gridsize;
             this.lastmove = "left";        
         }
-        else if(this.cursors.right.isDown){
+        else if(this.cursors.right.isDown && this.directions[2].index == this.safetile){
             this.char.animations.play('moveRight', 15, true);
             this.char.body.velocity.y = 0;
             this.char.body.velocity.x = 100;
+            this.marker.x = this.math.snapToFloor(Math.floor(this.char.x), this.gridsize) / this.gridsize;
             this.lastmove = "right";
         }
-        else if(this.cursors.up.isDown){
+        else if(this.cursors.up.isDown && this.directions[3].index == this.safetile){
             this.char.animations.play('moveUp', 15, true);
             this.char.body.velocity.x = 0;
             this.char.body.velocity.y = -100;
+            this.marker.y = this.math.snapToFloor(Math.ceil(this.char.y), this.gridsize) / this.gridsize;
             this.lastmove = "up"
         }
-        else if(this.cursors.down.isDown){
+        else if(this.cursors.down.isDown && this.directions[4].index == this.safetile){
             this.char.animations.play('moveDown', 15, true);
             this.char.body.velocity.x = 0;
             this.char.body.velocity.y = 100;
+            this.marker.y = this.math.snapToFloor(Math.floor(this.char.y), this.gridsize) / this.gridsize;
             this.lastmove = "down";
         }
-        else {
+        
+        else {       
             if(this.lastmove == "down"){
                 if(Math.ceil((this.char.position.y)/30) == Math.floor(0.1+((this.char.position.y)/30))){
                     this.char.body.velocity.x = 0; //needed to add both to stop sliding
                     this.char.body.velocity.y = 0;
-                    this.char.position.y = 30*(Math.round(0.3+((this.char.position.y)/30)))
+                    this.char.y = this.math.snapToFloor(Math.round(this.char.y/30)*30, this.gridsize);
                     this.char.animations.stop(null, true);
                     this.char.frame=2;
+                    this.marker.y = this.math.snapToFloor(Math.floor(this.char.y), this.gridsize) / this.gridsize;
+                    this.char.position.y = Math.round(this.char.body.y/30)*30;
+                //   this.checkCollisions();
                 }
             }
             else if(this.lastmove == "up"){
                 if(Math.ceil((this.char.position.y)/30) == Math.floor(0.1+((this.char.position.y)/30))){
                     this.char.body.velocity.x = 0;
                     this.char.body.velocity.y = 0;
-                    this.char.position.y = 30*(Math.round(0.3+((this.char.position.y)/30)))
+                    this.char.y = this.math.snapToFloor(Math.round(this.char.y/30)*30, this.gridsize);
                     this.char.animations.stop(null, true);
                     this.char.frame=11;
+                    this.marker.y = this.math.snapToFloor(Math.ceil(this.char.y), this.gridsize) / this.gridsize;
+                 //   this.checkCollisions();
                 }
             }
             else if(this.lastmove == "right"){
                 if(Math.ceil((this.char.position.x)/30) == Math.floor(0.1+((this.char.position.x)/30))){
                     this.char.body.velocity.x = 0;
                     this.char.body.velocity.y = 0;
-                    this.char.position.x = 30*(Math.round(0.3+((this.char.position.x)/30)))
+                    this.char.x = this.math.snapToFloor(Math.round(this.char.x/30)*30, this.gridsize);
                     this.char.animations.stop(null, true);
                     this.char.frame=8;
+                    this.marker.x = this.math.snapToFloor(Math.floor(this.char.x), this.gridsize) / this.gridsize;
+                   // this.checkCollisions();
                 }
             }
             else if(this.lastmove == "left"){
                 if(Math.ceil((this.char.position.x)/30) == Math.floor(0.1+((this.char.position.x)/30))){
                     this.char.body.velocity.x = 0;
                     this.char.body.velocity.y = 0;
-                    this.char.position.x = 30*(Math.round(0.4+((this.char.position.x)/30)))
+                    this.char.x = this.math.snapToFloor(Math.round(this.char.x/30)*30, this.gridsize);
                     this.char.animations.stop(null, true);
                     this.char.frame=5;
+                    this.marker.x = this.math.snapToFloor(Math.ceil(this.char.x), this.gridsize) / this.gridsize;
+                   // this.checkCollisions();
                 }
             }
 
         }
+        
 
     },
     
     update: function(){
-        //console.log(this.char.position.y)
-        //console.log(this.char.position.x)
         this.physics.arcade.collide(this.char, this.layer);
         this.physics.arcade.collide(this.char, this.stone);
         
+        if(this.map.getTileLeft(this.layer.index, this.marker.x, this.marker.y) && this.map.getTileRight(this.layer.index, this.marker.x, this.marker.y) && this.map.getTileAbove(this.layer.index, this.marker.x, this.marker.y) && this.map.getTileBelow(this.layer.index, this.marker.x, this.marker.y)){
+        
+        this.directions[1] = this.map.getTileLeft(this.layer.index, this.marker.x, this.marker.y);
+        this.directions[2] = this.map.getTileRight(this.layer.index, this.marker.x, this.marker.y);
+        this.directions[3] = this.map.getTileAbove(this.layer.index, this.marker.x, this.marker.y);
+        this.directions[4] = this.map.getTileBelow(this.layer.index, this.marker.x, this.marker.y);
+        
+        }
         this.checkKeys();
         
         if(this.counter == 5){
@@ -154,6 +180,10 @@ var prelvlOne = {
             console.log("yai")
             this.finish = this.add.button(70, 120, 'finish', this.finishButton, this);
         }
+    },
+    
+    checkCollisions: function(){
+        console.log();
     },
     
     updateCounter: function(){

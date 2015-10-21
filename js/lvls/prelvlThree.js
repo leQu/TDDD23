@@ -1,4 +1,4 @@
-var lvlThree = {    
+var prelvlThree = {    
         
     init: function (){
     
@@ -17,7 +17,7 @@ var lvlThree = {
     },
     
     preload: function() {       
-        this.load.tilemap('map', 'assets/maps/lvlThreeMap.json', null, Phaser.Tilemap.TILED_JSON);
+        this.load.tilemap('map', 'assets/maps/prelvlThree.json', null, Phaser.Tilemap.TILED_JSON);
         this.load.image('tiles', 'assets/images/sourceimage3.png');
         this.load.image('char', 'assets/images/tempChar2.png');
         this.load.image('goal', 'assets/images/goal.png');
@@ -41,14 +41,9 @@ var lvlThree = {
         this.map.setCollisionByExclusion([this.safetile], true, this.layer);
         
         this.goal = this.add.sprite(120, 450, 'goal');
-        this.lever1 = this.add.sprite(360, 390, 'movinglever1');
-        this.lever2 = this.add.sprite(30, 60, 'movinglever1');
-        this.stone1 = this.add.sprite(180, 180, 'blockStone');
-        this.stone2 = this.add.sprite(120, 270, 'blockStone');
-        this.leverStone = this.add.sprite(210, 30, 'goal');
-        this.leverStone2 = this.add.sprite(30, 330, 'goal');
+        this.leverStone = this.add.sprite(150, 60, 'goal');
         
-        this.char = this.add.sprite(270, 30, 'charAll');
+        this.char = this.add.sprite(210, 30, 'charAll');
         
         this.char.animations.add('moveUp', [9,10], 10, true);
         this.char.animations.add('moveDown', [0,1], 10, true);
@@ -56,21 +51,20 @@ var lvlThree = {
         this.char.animations.add('moveLeft', [3,4], 10, true);
         
         this.triggerButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        this.triggerButton.onDown.add(testFloor4, this);
+        this.triggerButton.onDown.add(testFloor3, this)
+        this.info = this.add.button(50, 120, 'info', this.buttonpressed, this);
         
-        this.physics.arcade.enable([this.char, this.goal, this.lever1, this.lever2, this.stone1, this.stone2, this.leverStone]);
+        this.physics.arcade.enable([this.char, this.goal, this.leverStone]);
         this.char.body.collideWorldBounds = true;
         
         this.leverStone.body.immovable = true;
-        this.stone1.body.immovable = true;
-        this.stone2.body.immovable = true;
 
         this.cursors = this.input.keyboard.createCursorKeys();
         
     },
     
-    finishButton: function(){
-        game.state.start('lvlFour'); 
+    buttonpressed: function(){
+        this.info.kill();
     },
     
     checkKeys: function(){
@@ -141,10 +135,12 @@ var lvlThree = {
 
     },
     
+    finishButton: function(){
+        game.state.start('lvlThree');
+    },
+    
     update: function(){
         this.physics.arcade.collide(this.char, this.layer);
-        this.physics.arcade.collide(this.char, this.stone1);
-        this.physics.arcade.collide(this.char, this.stone2);
         this.physics.arcade.collide(this.char, this.leverStone);
         
         this.checkKeys();
@@ -154,48 +150,23 @@ var lvlThree = {
             this.overlayer.sendToBack();
             
         }
-        else if(Phaser.Rectangle.intersects(this.char.getBounds(), this.leverStone2.getBounds())){
-            this.overlayer.sendToBack();   
-        }
         else if(Phaser.Rectangle.intersects(this.char.getBounds(), this.goal.getBounds())){
-            this.finish = this.add.button(70, 120, 'finish', this.finishButton, this);  
+            this.finish = this.add.button(70, 120, 'finish', this.finishButton, this);   
         }   
         //Needed to keep the infoquare on top untill it dies.
-
+        else if(!this.info.alive) {
+            this.overlayer.bringToTop();
+            this.char.bringToTop();
+        }
         else{
             this.overlayer.bringToTop();
             this.char.bringToTop();
-   
+            this.info.bringToTop();   
         }
     }
     
 };
 
-function testFloor4(){
-    if(Phaser.Rectangle.intersects(this.char.getBounds(), this.lever1.getBounds())){
-        console.log("LEVER1 BUTTON")
-        if(this.stone1.alive){
-            this.stone1.kill();
-            this.lever1.loadTexture('movinglever2', 0, false);
-            console.log("Stone1 is removed");
-        }
-        else{
-            this.stone1.reset(180, 180);  
-            this.lever1.loadTexture('movinglever1', 0, false);
-            console.log("Stone1 is added");
-        } 
-    }
-    else if(Phaser.Rectangle.intersects(this.char.getBounds(), this.lever2.getBounds())){
-        console.log("LEVER2 BUTTON")
-        if(this.stone2.alive){
-            this.stone2.kill();
-            this.lever2.loadTexture('movinglever2', 0, false);
-            console.log("Stone2 is removed");
-        }
-        else{
-            this.stone2.reset(120, 270);  
-            this.lever2.loadTexture('movinglever1', 0, false);
-            console.log("Stone2 is added");
-        } 
-    }
+function testFloor3(){
+    this.info.kill();
 }
